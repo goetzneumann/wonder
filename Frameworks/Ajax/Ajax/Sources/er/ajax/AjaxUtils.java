@@ -649,8 +649,8 @@ public class AjaxUtils {
 	 * }
 	 * </pre>
 	 * 
-	 * This method uses protoypes $$ functionality and allows far more than only CSS-classes as CSS selectors.  
-	 * You can find more information on the corresponding 
+	 * This method uses prototypes $$ functionality and allows far more than only CSS-classes as CSS selectors.  
+	 * You can find more information on the corresponding
 	 * <a href="http://prototypejs.org/doc/latest/dom/dollar-dollar/index.html">Prototype-Documentation</a>
 	 * 
 	 * @see #updateDomElement(WOResponse, String, Object, String, String, String)
@@ -670,7 +670,7 @@ public class AjaxUtils {
 	 * @param valueWhenEmpty
 	 *            string to use when value is null
 	 */
-	public static void updateDomElementsByCSSSelector(WOResponse response, String cssSelector, Object value, String numberFormat, String dateformat, String valueWhenEmpty){
+	public static void updateDomElementsByCSSSelector(WOResponse response, String cssSelector, Object value, String numberFormat, String dateFormat, String valueWhenEmpty){
 		if (numberFormat != null && dateFormat != null)
 			throw new IllegalArgumentException("You can only specify a numberFormat or a dateFormat, not both.");
 
@@ -692,7 +692,7 @@ public class AjaxUtils {
 			}
 		}
 
-		response.appendContentString("for(var i = 0,i < $$('"+cssSelector+"').length,i++){$$('"+cssSelector+"')[i].update('" + id + "'," + AjaxValue.javaScriptEscaped(value) + ");}");
+		response.appendContentString("for(var i = 0,i < $$('"+cssSelector+"').length,i++){$$('"+cssSelector+"')[i].update('" + cssSelector + "'," + AjaxValue.javaScriptEscaped(value) + ");}");
 	}
-}
+
 }
