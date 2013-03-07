@@ -627,4 +627,72 @@ public class AjaxUtils {
 		response.appendContentString("Element.update('" + id + "'," + AjaxValue.javaScriptEscaped(value) + ");");
 	}
 
+	/**
+	 * <code>updateDomElementsByCSSSelector</code> appends JavaScript code to the given
+	 * AjaxResponse that updates the content of all DOM Elements with the given
+	 * CSS selector to the specified value. Useful if you want to update multiple small
+	 * regions on a page with a single request, e.g. when an AjaxObserveField
+	 * triggers an action.
+	 * 
+	 * This method is also available on instances. The example
+	 * below uses the method on AjaxResponse.
+	 * 
+	 * <pre>
+	 * public WOActionResults cartItemChanged() {
+	 * 	ShoppingCart cart; // assume this exists
+	 * 	ShoppingCartItem item; // assume this exists
+	 * 	AjaxResponse response = AjaxUtils.createResponse(context().request(), context());
+	 * 	response.appendScriptHeaderIfNecessary();
+	 * 	response.updateDomElement(&quot;span.itemPrice&quot;, item.price(), &quot;#,##0.00&quot;, null, null);
+	 * 	response.appendScriptFooterIfNecessary();
+	 * 	return response;
+	 * }
+	 * </pre>
+	 * 
+	 * This method uses protoypes $$ functionality and allows far more than only CSS-classes as CSS selectors.  
+	 * You can find more information on the corresponding 
+	 * <a href="http://prototypejs.org/doc/latest/dom/dollar-dollar/index.html">Prototype-Documentation</a>
+	 * 
+	 * @see #updateDomElement(WOResponse, String, Object, String, String, String)
+	 * @see AjaxResponse#updateDomElement(String, Object, String, String, String)
+	 * @see AjaxResponse#updateDomElement(String, Object)
+	 * 
+	 * @param response
+	 *            The response to append the JavaScript to
+	 * @param cssSelector
+	 *            the CSS selector of the DOM elements to update
+	 * @param value
+	 *            The new value
+	 * @param numberFormat
+	 *            optional number format to format the value with
+	 * @param dateFormat
+	 *            optional date format to format the value with
+	 * @param valueWhenEmpty
+	 *            string to use when value is null
+	 */
+	public static void updateDomElementsByCSSSelector(WOResponse response, String cssSelector, Object value, String numberFormat, String dateformat, String valueWhenEmpty){
+		if (numberFormat != null && dateFormat != null)
+			throw new IllegalArgumentException("You can only specify a numberFormat or a dateFormat, not both.");
+
+		if (value == null && valueWhenEmpty != null) {
+			value = valueWhenEmpty;
+		}
+		else {
+			try {
+				if (numberFormat != null) {
+					value = ERXNumberFormatter.numberFormatterForPattern(numberFormat).format(value);
+				}
+				if (dateFormat != null) {
+					value = ERXTimestampFormatter.dateFormatterForPattern(dateFormat).format(value);
+				}
+			}
+			catch (Exception e) {
+				log.error(e);
+				value = null;
+			}
+		}
+
+		response.appendContentString("for(var i = 0,i < $$('"+cssSelector+"').length,i++){$$('"+cssSelector+"')[i].update('" + id + "'," + AjaxValue.javaScriptEscaped(value) + ");}");
+	}
+}
 }
