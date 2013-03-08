@@ -623,7 +623,7 @@ public class AjaxUtils {
 				value = null;
 			}
 		}
-
+		System.out.println("Element.update('" + id + "'," + AjaxValue.javaScriptEscaped(value) + ");");
 		response.appendContentString("Element.update('" + id + "'," + AjaxValue.javaScriptEscaped(value) + ");");
 	}
 
@@ -643,7 +643,7 @@ public class AjaxUtils {
 	 * 	ShoppingCartItem item; // assume this exists
 	 * 	AjaxResponse response = AjaxUtils.createResponse(context().request(), context());
 	 * 	response.appendScriptHeaderIfNecessary();
-	 * 	response.updateDomElement(&quot;span.itemPrice&quot;, item.price(), &quot;#,##0.00&quot;, null, null);
+	 * 	response.updateDomElementsByCSSSelector(&quot;span.itemPrice&quot;, item.price(), &quot;#,##0.00&quot;, null, null);
 	 * 	response.appendScriptFooterIfNecessary();
 	 * 	return response;
 	 * }
@@ -671,9 +671,9 @@ public class AjaxUtils {
 	 *            string to use when value is null
 	 */
 	public static void updateDomElementsByCSSSelector(WOResponse response, String cssSelector, Object value, String numberFormat, String dateFormat, String valueWhenEmpty){
-		if (numberFormat != null && dateFormat != null)
+		if (numberFormat != null && dateFormat != null){
 			throw new IllegalArgumentException("You can only specify a numberFormat or a dateFormat, not both.");
-
+		}
 		if (value == null && valueWhenEmpty != null) {
 			value = valueWhenEmpty;
 		}
@@ -691,8 +691,7 @@ public class AjaxUtils {
 				value = null;
 			}
 		}
-
-		response.appendContentString("for(var i = 0,i < $$('"+cssSelector+"').length,i++){$$('"+cssSelector+"')[i].update('" + cssSelector + "'," + AjaxValue.javaScriptEscaped(value) + ");}");
+		response.appendContentString("for(i = 0; i < (elements = $$('"+cssSelector+"')).length;i++){elements[i].update("+AjaxValue.javaScriptEscaped(value) + ");}");
 	}
 
 }
