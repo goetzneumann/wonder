@@ -4,15 +4,8 @@ import com.webobjects.directtoweb.D2WContext;
 import com.webobjects.eoaccess.EOEntity;
 
 import er.extensions.foundation.ERXThreadStorage;
+import er.rest.ERXRestContext;
 import er.rest.ERXRestException;
-import er.rest.entityDelegates.ERXDefaultRestDelegate;
-import er.rest.entityDelegates.ERXDenyRestEntityDelegate;
-import er.rest.entityDelegates.ERXRestContext;
-import er.rest.entityDelegates.ERXRestKey;
-import er.rest.entityDelegates.ERXRestNotFoundException;
-import er.rest.entityDelegates.ERXRestRequest;
-import er.rest.entityDelegates.ERXRestSecurityException;
-import er.rest.entityDelegates.IERXRestEntityDelegate;
 
 public class ERD2RestDelegate extends ERXDefaultRestDelegate {
     
