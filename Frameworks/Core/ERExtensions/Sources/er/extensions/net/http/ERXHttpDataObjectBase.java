@@ -244,24 +244,24 @@ public abstract class ERXHttpDataObjectBase {
 
   protected Scheme createScheme() {
     if(SCHEME_HTTPS.equals(scheme())) {
-      return new Scheme(scheme(), HTTPS_PORT, SSLSocketFactory.getSocketFactory());
+      return new Scheme(scheme(), SSLSocketFactory.getSocketFactory(), HTTPS_PORT);
     } else if(port() == -1) {
-      return new Scheme(scheme(), HTTP_PORT, PlainSocketFactory.getSocketFactory());
+      return new Scheme(scheme(), PlainSocketFactory.getSocketFactory(), HTTP_PORT);
     } else {
-      return new Scheme(scheme(), port(), PlainSocketFactory.getSocketFactory());
+      return new Scheme(scheme(), PlainSocketFactory.getSocketFactory(), port());
     }
   }
 
   protected String userAgent() {
     // assemble User-Agent header
-    StringBuilder useragent = new StringBuilder();
+    StringBuffer useragent = new StringBuffer();
     useragent.append("WebObjects/ " + ERXProperties.webObjectsVersion() + " (");
     useragent.append(System.getProperty("os.arch"));
     useragent.append("; ");
     useragent.append(System.getProperty("os.name"));
-    useragent.append(' ');
+    useragent.append(" ");
     useragent.append(System.getProperty("os.version"));
-    useragent.append(')');
+    useragent.append(")");
     return useragent.toString();
   }
 

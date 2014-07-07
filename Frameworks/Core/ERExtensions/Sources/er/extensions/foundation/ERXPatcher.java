@@ -1131,7 +1131,7 @@ public class ERXPatcher {
 		}
 
 		private static final int consumeTag(String string, int index, StringBuffer buf) {
-			StringBuilder tagName = new StringBuilder();
+			StringBuffer tagName = new StringBuffer();
 			int i = index;
 			int length = string.length();
 
@@ -1248,7 +1248,7 @@ public class ERXPatcher {
 		}
 
 		private static final int consumeAttributeName(String string, int index, StringBuffer buf) {
-			StringBuilder attName = new StringBuilder();
+			StringBuffer attName = new StringBuffer();
 			int length = string.length();
 			boolean afterWhiteSpace = false;
 			

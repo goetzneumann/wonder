@@ -292,7 +292,7 @@ public class ERXSQLQueryWithBindingsUtilities {
     protected static String processedQueryString(String query, EOSQLExpression expression, ERXSQLBinding... bindings) {
         int currentOffset = 0;
         int bindingCount = 0;
-        StringBuilder processedQueryBuffer = new StringBuilder();
+        StringBuffer processedQueryBuffer = new StringBuffer();
         NSArray positions = varPositionsForQuery( query );
 
         if( positions.count() != bindings.length ) {

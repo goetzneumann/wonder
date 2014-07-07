@@ -1,3 +1,9 @@
+//
+// Logger.java
+// Project ERExtensions
+//
+// Created by ak on Tue Apr 02 2002
+//
 package er.extensions.logging;
 
 import java.util.Properties;
@@ -14,6 +20,7 @@ import com.webobjects.foundation.NSLog;
 import com.webobjects.foundation.NSNotificationCenter;
 
 import er.extensions.foundation.ERXConfigurationManager;
+import er.extensions.foundation.ERXProperties;
 import er.extensions.foundation.ERXSystem;
 
 /**
@@ -181,13 +188,16 @@ public class ERXLogger extends org.apache.log4j.Logger {
 		// which sets it's own logging level to DEBUG
 		// and the output should be pretty much the same as with plain WO
 		Logger.getRootLogger().setLevel(Level.INFO);
-		int allowedLevel = NSLog.debug.allowedDebugLevel();
-		if (!(NSLog.debug instanceof ERXNSLogLog4jBridge)) {
-			NSLog.setOut(new ERXNSLogLog4jBridge(ERXNSLogLog4jBridge.OUT));
-			NSLog.setErr(new ERXNSLogLog4jBridge(ERXNSLogLog4jBridge.ERR));
-			NSLog.setDebug(new ERXNSLogLog4jBridge(ERXNSLogLog4jBridge.DEBUG));
+		boolean is522OrHigher = ERXProperties.webObjectsVersionIs522OrHigher();
+		if (is522OrHigher) {
+			int allowedLevel = NSLog.debug.allowedDebugLevel();
+			if (!(NSLog.debug instanceof ERXNSLogLog4jBridge)) {
+				NSLog.setOut(new ERXNSLogLog4jBridge(ERXNSLogLog4jBridge.OUT));
+				NSLog.setErr(new ERXNSLogLog4jBridge(ERXNSLogLog4jBridge.ERR));
+				NSLog.setDebug(new ERXNSLogLog4jBridge(ERXNSLogLog4jBridge.DEBUG));
+			}
+			NSLog.debug.setAllowedDebugLevel(allowedLevel);
 		}
-		NSLog.debug.setAllowedDebugLevel(allowedLevel);
 		PropertyConfigurator.configure(properties);
 		// AK: if the root logger has no appenders, something is really broken
 		// most likely the properties didn't read correctly.

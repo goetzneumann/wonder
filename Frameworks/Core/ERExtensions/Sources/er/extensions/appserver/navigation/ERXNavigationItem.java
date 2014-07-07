@@ -371,7 +371,7 @@ public class ERXNavigationItem implements Serializable {
 	 * @return {@link String} navigationPath
 	 */
 	public String navigationPath() {
-		StringBuilder result = new StringBuilder();
+		StringBuffer result = new StringBuffer();
 
 		// local variable to keep track of the navItem in the loop
 		ERXNavigationItem navItem = this;

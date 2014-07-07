@@ -16,7 +16,6 @@
         {className = EOGenericRecord; name = EOJDBCPostgresqlPrototypes; }, 
         {className = EOGenericRecord; name = EOJDBCPrototypes; }, 
         {className = EOGenericRecord; name = EOJDBCSQLServerPrototypes; }, 
-        {className = EOGenericRecord; name = EONeo4JPrototypes; }, 
         {className = EOGenericRecord; name = EOMemoryPrototypes; }, 
         {className = EOGenericRecord; name = EORESTPrototypes; }
     ); 

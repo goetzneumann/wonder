@@ -6,6 +6,10 @@ RPCHyperlink : WOHyperlink {
 	pageName = "ProxyExample";
 }
 
+AjaxUpdateDOMbyCSSSelector : WOHyperlink{
+	pageName = "AjaxUpdateDOMbyCSSSelector";
+}
+
 UpdateContainerInContainerLink : WOHyperlink {
 	pageName = "UpdateContainerInContainer";
 }

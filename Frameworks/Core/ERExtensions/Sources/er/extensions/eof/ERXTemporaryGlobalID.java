@@ -130,7 +130,7 @@ public class ERXTemporaryGlobalID extends EOGlobalID {
 
 	@Override
 	public String toString() {
-		StringBuilder s = new StringBuilder();
+		StringBuffer s = new StringBuffer();
 		for(int i = 0; i < 16; i++) {
 			int index = (int) (_value >> ((15 - i) * 4));
 			s.append(hex.charAt(index & 0xf));

@@ -1,9 +1,23 @@
 /**
  * AJAX Upload ( http://valums.com/ajax-upload/ ) 
- * Copyright (c) Andrew Valums
- * Licensed under the MIT license 
+ * Copyright (c) Andris Valums
+ * Licensed under the MIT license ( http://valums.com/mit-license/ )
+ * Thanks to Gary Haran, David Mark, Corey Burns and others for contributions 
  */
 (function () {
+    /* global window */
+    /* jslint browser: true, devel: true, undef: true, nomen: true, bitwise: true, regexp: true, newcap: true, immed: true */
+    
+    /**
+     * Wrapper for FireBug's console.log
+     */
+    function log(){
+        if (typeof(console) != 'undefined' && typeof(console.log) == 'function'){            
+            Array.prototype.unshift.call(arguments, '[Ajax Upload]');
+            console.log( Array.prototype.join.call(arguments, ' '));
+        }
+    } 
+
     /**
      * Attaches event to a dom element.
      * @param {Element} el
@@ -217,13 +231,12 @@
      * @param {Object} options See defaults below.
      */
     window.AjaxUpload = function(button, options){
+    	//alert("Creating");
         this._settings = {
             // Location of the server-side upload script
             action: 'upload.php',
             // File upload name
             name: 'userfile',
-            // Select & upload multiple files at once FF3.6+, Chrome 4+
-            multiple: false,
             // Additional data to send
             data: {},
             // Submit file as soon as it's selected
@@ -235,8 +248,6 @@
             responseType: false,
             // Class applied to button when mouse is hovered
             hoverClass: 'hover',
-            // Class applied to button when button is focused
-            focusClass: 'focus',
             // Class applied to button when AU is disabled
             disabledClass: 'disabled',            
             // When user selects a file, useful with autoSubmit disabled
@@ -259,6 +270,9 @@
                 this._settings[i] = options[i];
             }
         }
+        
+        // Remove the old input if it exists
+
                 
         // button isn't necessary a dom element
         if (button.jquery){
@@ -287,7 +301,9 @@
                 }
             });
         }
-                    
+                  
+        this._iframe = null;
+          
         // DOM element
         this._button = button;        
         // DOM element                 
@@ -318,12 +334,10 @@
             
             // hide input
             if (this._input){
-                if (this._input.parentNode) {
-                    // We use visibility instead of display to fix problem with Safari 4
-                    // The problem is that the value of input doesn't change if it 
-                    // has display none when user selects a file
-                    this._input.parentNode.style.visibility = 'hidden';
-                }
+                // We use visibility instead of display to fix problem with Safari 4
+                // The problem is that the value of input doesn't change if it 
+                // has display none when user selects a file           
+                this._input.parentNode.style.visibility = 'hidden';
             }
         },
         enable: function(){
@@ -332,18 +346,26 @@
             this._disabled = false;
             
         },
+        iframe: function() {
+        	return this._iframe;
+        },
         /**
          * Creates invisible file input 
          * that will hover above the button
          * <div><input type='file' /></div>
          */
-        _createInput: function(){ 
+        _createInput: function(){
+            // check if element already exists
+            var oldInput = document.getElementById(this._settings.name);
+            if (oldInput) {
+                this._input = oldInput;
+                return;
+            }
             var self = this;
-                        
             var input = document.createElement("input");
             input.setAttribute('type', 'file');
             input.setAttribute('name', this._settings.name);
-            if(this._settings.multiple) input.setAttribute('multiple', 'multiple');
+            input.setAttribute('id', this._settings.name);
             
             addStyles(input, {
                 'position' : 'absolute',
@@ -351,14 +373,11 @@
                 // is clickable and it is located at
                 // the right side of the input
                 'right' : 0,
-                'height' : '100%',
                 'margin' : 0,
                 'padding' : 0,
-                'fontSize' : '480px',
-                // in Firefox if font-family is set to
-                // 'inherit' the input doesn't work
-                'fontFamily' : 'sans-serif',
-                'cursor' : 'pointer'
+                'fontSize' : '480px',                
+                'cursor' : 'pointer',
+                'height' : '100%' // make overlay same height as button
             });            
 
             var div = document.createElement("div");                        
@@ -384,6 +403,14 @@
                 }
                 div.style.filter = "alpha(opacity=0)";
             }            
+            
+            if (this._settings.onClickBefore) {
+	            /* using prototype.js API which is much simpler */
+	            Event.observe(input, 'click', function(event) {
+	            	if (event == null) event = window.event;
+	            	if (!eval(self._settings.onClickBefore)) Event.stop(event);
+	            });
+	        }
             
             addEvent(input, 'change', function(){
                  
@@ -412,24 +439,17 @@
             
             addEvent(input, 'mouseout', function(){
                 removeClass(self._button, self._settings.hoverClass);
-                removeClass(self._button, self._settings.focusClass);
                 
-                if (input.parentNode) {
-                    // We use visibility instead of display to fix problem with Safari 4
-                    // The problem is that the value of input doesn't change if it 
-                    // has display none when user selects a file
-                    input.parentNode.style.visibility = 'hidden';
-                }
+                // We use visibility instead of display to fix problem with Safari 4
+                // The problem is that the value of input doesn't change if it 
+                // has display none when user selects a file           
+                //
+                // mhast: this causes a MAJOR issue in IE 8 when using onClickBefore
+                //        removing it does not seem to have any negative effects
+                //input.parentNode.style.visibility = 'hidden';
+
             });   
                         
-            addEvent(input, 'focus', function(){
-                addClass(self._button, self._settings.focusClass);
-            });
-            
-            addEvent(input, 'blur', function(){
-                removeClass(self._button, self._settings.focusClass);
-            });
-            
 	        div.appendChild(input);
             document.body.appendChild(div);
               
@@ -446,7 +466,6 @@
             this._createInput();
             
             removeClass(this._button, this._settings.hoverClass);
-            removeClass(this._button, this._settings.focusClass);
         },
         /**
          * Function makes sure that when user clicks upload button,
@@ -495,7 +514,10 @@
         _createIframe: function(){
             // We can't use getTime, because it sometimes return
             // same value in safari :(
-            var id = getUID();            
+            var id = this._settings.iframeId;
+            if (id == null) {
+            	id = getUID();
+            }            
              
             // We can't use following code as the name attribute
             // won't be properly registered in IE6, and new window
@@ -611,7 +633,6 @@
                         // nodeValue property to retrieve the unmangled content.
                         // Note that IE6 only understands text/html
                         if (doc.body.firstChild && doc.body.firstChild.nodeName.toUpperCase() == 'PRE') {
-                            doc.normalize();
                             response = doc.body.firstChild.firstChild.nodeValue;
                         }
                         
@@ -625,7 +646,7 @@
                     // response is a xml document
                     response = doc;
                 }
-                
+                //alert(response);
                 settings.onComplete.call(self, file, response);
                 
                 // Reload blank page, so that reloading main page
@@ -640,7 +661,7 @@
         /**
          * Upload file contained in this._input
          */
-        submit: function(){                        
+        submit: function(){                       
             var self = this, settings = this._settings;
             
             if ( ! this._input || this._input.value === ''){                
@@ -656,14 +677,13 @@
             }
             
             // sending request    
-            var iframe = this._createIframe();
-            var form = this._createForm(iframe);
+            this._iframe = this._createIframe();
+            var form = this._createForm(this._iframe);
             
             // assuming following structure
             // div -> input type='file'
             removeNode(this._input.parentNode);            
             removeClass(self._button, self._settings.hoverClass);
-            removeClass(self._button, self._settings.focusClass);
                         
             form.appendChild(this._input);
                         
@@ -671,10 +691,10 @@
 
             // request set, clean up                
             removeNode(form); form = null;                          
-            removeNode(this._input); this._input = null;            
+            removeNode(this._input); this._input = null;
             
             // Get response from iframe and fire onComplete event when ready
-            this._getResponse(iframe, file);            
+            this._getResponse(this._iframe, file);            
 
             // get ready for next request            
             this._createInput();

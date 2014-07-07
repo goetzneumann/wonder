@@ -33,7 +33,7 @@ public class ERXImage extends ERXStatelessComponent {
     protected String src;
     public String src() {
         if (src == null) {
-            StringBuilder url = new StringBuilder();
+            StringBuffer url = new StringBuffer();
             if (host() != null) {
                 url.append("http://");
                 url.append(host());

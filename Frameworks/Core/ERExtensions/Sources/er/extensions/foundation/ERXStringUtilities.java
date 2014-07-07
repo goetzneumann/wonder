@@ -32,7 +32,6 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.apache.commons.lang.CharEncoding;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.webobjects.appserver.WOApplication;
@@ -186,9 +185,7 @@ public class ERXStringUtilities {
 	 * @param b
 	 *            second string
 	 * @return the distance between the two strings
-	 * @deprecated use {@link StringUtils#getLevenshteinDistance(String, String)} instead
 	 */
-	@Deprecated
 	public static int levenshteinDistance(String a, String b) {
 		int n = a.length();
 		int m = b.length();
@@ -688,9 +685,7 @@ public class ERXStringUtilities {
      * @param newString to be inserted
      * @param buffer string to have the replacement done on it
      * @return string after having all of the replacement done.
-     * @deprecated use {@link StringUtils#replace(String, String, String)} instead
      */
-    @Deprecated
     public static String replaceStringByStringInString(String old, String newString, String buffer) {
         int begin, end;
         int oldLength = old.length();
@@ -725,9 +720,7 @@ public class ERXStringUtilities {
      * @param replacementString the string with which to replace stringToReplace.
      * @return sourceString with stringToReplace replaced with replacementString if it
      *         existed in sourceString.  otherwise, sourceString is returned.
-     * @deprecated use {@link StringUtils#replaceOnce(String, String, String)} instead
      */
-    @Deprecated
     public static String stringByReplacingFirstOccurrenceOfStringWithString(final String sourceString, final String stringToReplace, final String replacementString) {
         final int indexOfMatch = sourceString.indexOf(stringToReplace);
         final String result;
@@ -1197,7 +1190,8 @@ public class ERXStringUtilities {
     public static String removeExtraDotsFromVersionString(String version) {
         int floatingPointIndex = version.indexOf("."); 
         if (floatingPointIndex >= 0  &&  floatingPointIndex + 1 < version.length()) {
-            String minorVersion = StringUtils.replace(version.substring(floatingPointIndex + 1), ".", "");
+            String minorVersion = ERXStringUtilities.replaceStringByStringInString(".", "", 
+                                        version.substring(floatingPointIndex + 1));
             version = version.substring(0, floatingPointIndex + 1) + minorVersion;
         }
         return version;
@@ -1320,7 +1314,7 @@ public class ERXStringUtilities {
     			boolean isLastCharacter = (i == length - 1); 
     			boolean nextCharacterIsCapital =  (!isLastCharacter && Character.isUpperCase(camelString.charAt(i + 1)));
     			if (i > 0 && ((!lastCharacterWasWordBreak && !lastCharacterWasCapital) || (!nextCharacterIsCapital && !isLastCharacter))) {
-    				underscore.append('_');
+    				underscore.append("_");
     				lastCharacterWasWordBreak = true;
     			}
     			else {
@@ -1836,7 +1830,7 @@ public class ERXStringUtilities {
     		sb.append(",\n");
     	}
    		indent(sb, level);
-    	sb.append(')');
+    	sb.append(")");
     }
     
     private static void dumpDictionary(StringBuffer sb, NSDictionary dict, int level) {
@@ -1850,7 +1844,7 @@ public class ERXStringUtilities {
     		sb.append(";\n");
     	}
     	indent(sb, level);
-    	sb.append('}');
+    	sb.append("}");
     }
     
     private static NSDictionary databaseOperationAsDictionary(EODatabaseOperation op) {
@@ -1992,7 +1986,7 @@ public class ERXStringUtilities {
 			if(!(value instanceof String)) {
 				stringValue = stringValue.replaceAll("\n", "\n\t");
 			}
-			result.append('\t');
+			result.append("\t");
 			result.append(stringKey);
 			result.append(" = ");
 			result.append(stringValue);
@@ -2376,7 +2370,7 @@ public class ERXStringUtilities {
      */
     // FIXME: this is so simplistic it will break if you sneeze
     public static String removeHTMLTagsFromString(String s) {
-        StringBuilder result = new StringBuilder();
+        StringBuffer result=new StringBuffer();
         if (s != null && s.length()>0) {
             int position=0;
             while (position<s.length()) {
@@ -2398,7 +2392,7 @@ public class ERXStringUtilities {
                 }
             }
         }
-        return StringUtils.replace(result.toString(), "&nbsp;"," ");
+        return ERXStringUtilities.replaceStringByStringInString("&nbsp;"," ",result.toString());
     }
     
     /**
@@ -2414,7 +2408,7 @@ public class ERXStringUtilities {
         StringTokenizer tokenizer = new StringTokenizer(value, "<", false);
         int token = value.charAt(0) == '<' ? 0 : 1;
         String nextPart = null;
-        StringBuilder result = new StringBuilder();
+        StringBuffer result = new StringBuffer();
         int currentLength = result.length();
         while (tokenizer.hasMoreTokens() && currentLength < length && currentLength < value.length()) {
             if(token == 0)
@@ -2795,15 +2789,4 @@ public class ERXStringUtilities {
         return result;
     }
 	
-	public static boolean isBlank(String value) {
-		boolean isBlank = false;
-		if (value == null || value.trim().length() == 0) {
-			isBlank = true;
-		}
-		return isBlank;
-	}
-	
-	public static boolean isNotBlank(String value) {
-		return ! isBlank(value);
-	}
 }

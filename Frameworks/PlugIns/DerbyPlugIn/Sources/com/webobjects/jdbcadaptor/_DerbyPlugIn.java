@@ -43,9 +43,9 @@ public class _DerbyPlugIn extends JDBCPlugIn {
 
 		@Override
 		public void addCreateClauseForAttribute(final EOAttribute attribute) {
-			StringBuilder sql = new StringBuilder();
+			StringBuffer sql = new StringBuffer();
 			sql.append(attribute.columnName());
-			sql.append(' ');
+			sql.append(" ");
 			sql.append(columnTypeStringForAttribute(attribute));
 
 			NSDictionary userInfo = attribute.userInfo();
@@ -60,7 +60,7 @@ public class _DerbyPlugIn extends JDBCPlugIn {
 				}
 			}
 
-			sql.append(' ');
+			sql.append(" ");
 			sql.append(allowsNullClauseForConstraint(attribute.allowsNull()));
 
 			appendItemToListString(sql.toString(), _listString());
@@ -244,21 +244,21 @@ public class _DerbyPlugIn extends JDBCPlugIn {
 		@Override
 		public NSArray<EOSQLExpression> foreignKeyConstraintStatementsForRelationship(EORelationship relationship) {
 			if (!relationship.isToMany() && isPrimaryKeyAttributes(relationship.destinationEntity(), relationship.destinationAttributes())) {
-				StringBuilder sql = new StringBuilder();
+				StringBuffer sql = new StringBuffer();
 				String tableName = relationship.entity().externalName();
 
 				sql.append("ALTER TABLE ");
 				sql.append(quoteTableName(tableName.toUpperCase()));
 				sql.append(" ADD");
 
-				StringBuilder constraint = new StringBuilder(" CONSTRAINT \"FOREIGN_KEY_");
+				StringBuffer constraint = new StringBuffer(" CONSTRAINT \"FOREIGN_KEY_");
 				constraint.append(tableName);
 
-				StringBuilder fkSql = new StringBuilder(" FOREIGN KEY (");
+				StringBuffer fkSql = new StringBuffer(" FOREIGN KEY (");
 				NSArray<EOAttribute> attributes = relationship.sourceAttributes();
 
 				for (int i = 0; i < attributes.count(); i++) {
-					constraint.append('_');
+					constraint.append("_");
 					if (i != 0)
 						fkSql.append(", ");
 
@@ -270,7 +270,7 @@ public class _DerbyPlugIn extends JDBCPlugIn {
 				}
 
 				fkSql.append(") REFERENCES ");
-				constraint.append('_');
+				constraint.append("_");
 
 				String referencedExternalName = relationship.destinationEntity().externalName();
 				fkSql.append(quoteTableName(referencedExternalName.toUpperCase()));
@@ -281,7 +281,7 @@ public class _DerbyPlugIn extends JDBCPlugIn {
 				attributes = relationship.destinationAttributes();
 
 				for (int i = 0; i < attributes.count(); i++) {
-					constraint.append('_');
+					constraint.append("_");
 					if (i != 0)
 						fkSql.append(", ");
 
@@ -295,7 +295,7 @@ public class _DerbyPlugIn extends JDBCPlugIn {
 				// MS: did i write this code?  sorry about that everything. this is crazy. 
 				constraint.append("\"");
 
-				fkSql.append(')');
+				fkSql.append(")");
 				// BOO
 				//fkSql.append(") DEFERRABLE INITIALLY DEFERRED");
 

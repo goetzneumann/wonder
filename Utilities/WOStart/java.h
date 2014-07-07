@@ -39,7 +39,7 @@ void
 GetXUsagePath(char *buf, jint bufsize);
 
 jboolean
-GetJREHome(char *buf, jint bufsize, char *javaCommand);
+GetApplicationHome(char *buf, jint bufsize);
 
 const char *
 GetArch();
@@ -50,8 +50,7 @@ void CreateExecutionEnvironment(int *_argc,
 				       jint so_jrepath,
 				       char jvmpath[],
 				       jint so_jvmpath,
-				       char **original_argv,
-					   char *javaCommand);
+				       char **original_argv);
 
 /*
  * Report an error message to stderr or a window as appropriate.  The

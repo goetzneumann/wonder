@@ -346,10 +346,16 @@ public class WOToManyRelationship extends WOComponent {
 
         count = (newValues == null) ? 0 : newValues.count();
 
+        if (isDictionary && currentValues == null) {
+            currentValues = new NSMutableArray(count);
+
+            _dictionary.setObjectForKey(currentValues, masterKey);
+        }
+
         for (int i = count - 1; i >= 0; i--) {
             o = (EOEnterpriseObject) newValues.objectAtIndex(i);
 
-            if (currentValues.indexOfIdenticalObject(o) == NSArray.NotFound) {  // not found
+            if (currentValues == null || currentValues.indexOfIdenticalObject(o) == NSArray.NotFound) {  // not found
 
                 if (isDictionary) {
                     currentValues.addObject(o);
@@ -382,7 +388,7 @@ public class WOToManyRelationship extends WOComponent {
 
             if (isMandatory() && theList().count() > 0) {
                 Object anObject = theList().objectAtIndex(0);
-                aTempValue = new NSArray<Object>(anObject);
+                aTempValue = new NSArray(anObject);
             }
             else {
                 aTempValue = null;
@@ -406,7 +412,7 @@ public class WOToManyRelationship extends WOComponent {
                 if (theList().count() > 0) {
                     Object anObject = theList().objectAtIndex(0);
 
-                    set_privateSelections(new NSArray<Object>(anObject));
+                    set_privateSelections(new NSArray(anObject));
                 }
 
             }
@@ -417,7 +423,7 @@ public class WOToManyRelationship extends WOComponent {
     }
 
     public NSArray theList() {
-        NSMutableArray<EOEnterpriseObject> aSortedArray;
+        NSMutableArray aSortedArray;
 
         // ** This is cached because WOBrowser and WOCheckBoxList
         // ** might ask for list many times.

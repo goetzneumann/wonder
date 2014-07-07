@@ -4,7 +4,6 @@ DateField : WOTextField {
   class = dateFormatString;
   onclick = datePickerOpenScript;
   id = elementID;
-  tabindex = ^tabindex;
 }
 
 DatePickerCreateScript : WOString {

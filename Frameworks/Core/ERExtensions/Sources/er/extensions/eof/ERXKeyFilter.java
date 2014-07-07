@@ -807,7 +807,7 @@ public class ERXKeyFilter {
 	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		StringBuffer sb = new StringBuffer();
 		sb.append("[ERXKeyFilter: base=" + _base);
 		if (_distinct) {
 			sb.append("; distinct");
@@ -821,7 +821,7 @@ public class ERXKeyFilter {
 		if (!_lockedRelationships.isEmpty()) {
 			sb.append("; excludesRelationships=" + _lockedRelationships);
 		}
-		sb.append(']');
+		sb.append("]");
 		return sb.toString();
 	}
 	

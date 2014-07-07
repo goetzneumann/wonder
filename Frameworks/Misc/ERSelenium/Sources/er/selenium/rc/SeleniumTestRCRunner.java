@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import com.thoughtworks.selenium.HttpCommandProcessor;
 import com.thoughtworks.selenium.SeleniumException;
+import com.webobjects.foundation.NSArray;
 
 import er.selenium.SeleniumTest;
 

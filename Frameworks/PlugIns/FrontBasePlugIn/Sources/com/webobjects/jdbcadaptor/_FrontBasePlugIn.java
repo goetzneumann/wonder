@@ -40,6 +40,7 @@ import com.webobjects.foundation.NSMutableDictionary;
 import com.webobjects.foundation.NSPropertyListSerialization;
 import com.webobjects.foundation.NSRange;
 import com.webobjects.foundation.NSSelector;
+import com.webobjects.foundation.NSTimeZone;
 import com.webobjects.foundation.NSTimestamp;
 import com.webobjects.foundation._NSUtilities;
 
@@ -68,37 +69,6 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 	static final String _frontbaseStoredProcedureCatalogPattern = System.getProperty("jdbcadaptor.frontbase.storedProcedureCatalogPattern", null);
 	static final String _frontbaseStoredProcedureSchemaPattern = System.getProperty("jdbcadaptor.frontbase.storedProcedureSchemaPattern", null);
 	static final String _frontbaseSqlStatementForGettingTableNames = System.getProperty("jdbcadaptor.frontbase.sqlStatementForGettingTableNames", null);
-	static final String _frontbaseContainsOperatorFix = System.getProperty("jdbcadaptor.frontbase.frontbaseContainsOperatorFix", null);
-
-	/**
-	 * Formatter to use when handling date columns. Each thread has its own copy.
-	 */
-	private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTER = new ThreadLocal<SimpleDateFormat>() {
-		@Override
-		protected SimpleDateFormat initialValue() {
-			return new SimpleDateFormat("yyyy-MM-dd");
-		}
-	};
-
-	/**
-	 * Formatter to use when handling timestamp columns. Each thread has its own copy.
-	 */
-	private static final ThreadLocal<SimpleDateFormat> TIMESTAMP_FORMATTER = new ThreadLocal<SimpleDateFormat>() {
-		@Override
-		protected SimpleDateFormat initialValue() {
-			return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-		}
-	};
-
-	/**
-	 * Formatter to use when handling time only columns. Each thread has its own copy.
-	 */
-	private static final ThreadLocal<SimpleDateFormat> TIME_FORMATTER = new ThreadLocal<SimpleDateFormat>() {
-		@Override
-		protected SimpleDateFormat initialValue() {
-			return new SimpleDateFormat("HH:mm:ss.SSS");
-		}
-	};
 
 	public _FrontBasePlugIn(JDBCAdaptor jdbcadaptor) {
 		super(jdbcadaptor);
@@ -345,7 +315,7 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 		try {
 			Connection con = ((JDBCContext) channel.adaptorContext()).connection();
 
-			NSMutableDictionary<String, Object> d = new NSMutableDictionary<String, Object>();
+			NSMutableDictionary d = new NSMutableDictionary();
 
 			for (int i = 0; i < array.count(); i += 2) {
 				d.setObjectForKey(getLobHandle(con, array.objectAtIndex(i), array.objectAtIndex(i + 1)), ((EOAttribute) array.objectAtIndex(i)).name());
@@ -371,11 +341,11 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 		// MS: This is weird, but to allow for people to build FrontBasePlugIn without actually
 		// having the FrontBase JDBC driver installed, I've switched these two calls to be reflection.
 		try {
-			switch (FrontBaseTypes.internalTypeForExternal(((EOAttribute) attribute).externalType())) {
-			case FrontBaseTypes.FB_BLOB:
+			switch (internalTypeForExternal(((EOAttribute) attribute).externalType())) {
+			case FB_BLOB:
 				Method writeBLOBBytes = con.getClass().getMethod("writeBLOB", new Class[] { byte[].class });
 				return (String) writeBLOBBytes.invoke(con, new Object[] { ((NSData) value).bytes() });
-			case FrontBaseTypes.FB_CLOB:
+			case FB_CLOB:
 				Method writeCLOBString = con.getClass().getMethod("writeCLOB", new Class[] { String.class });
 				return (String) writeCLOBString.invoke(con, new Object[] { (String) value });
 			default:
@@ -485,7 +455,7 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 			attributesToFetch.addObject(generatedPrimaryKeyAttribute);
 		}
 
-		sql.append(')');
+		sql.append(")");
 
 		boolean pksGenerated = false;
 		EOSQLExpression eosqlexpression = expressionFactory().expressionForString(sql.toString());
@@ -523,51 +493,28 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 		return pksGenerated;
 	}
 
-	@Deprecated
 	protected static final int FB_Boolean = 1;
-	@Deprecated
 	protected static final int FB_Integer = 2;
-	@Deprecated
 	protected static final int FB_SmallInteger = 3;
-	@Deprecated
 	protected static final int FB_Float = 4;
-	@Deprecated
 	protected static final int FB_Real = 5;
-	@Deprecated
 	protected static final int FB_Double = 6;
-	@Deprecated
 	protected static final int FB_Numeric = 7;
-	@Deprecated
 	protected static final int FB_Decimal = 8;
-	@Deprecated
 	protected static final int FB_Character = 9;
-	@Deprecated
 	protected static final int FB_VCharacter = 10;
-	@Deprecated
 	protected static final int FB_Bit = 11;
-	@Deprecated
 	protected static final int FB_VBit = 12;
-	@Deprecated
 	protected static final int FB_Date = 13;
-	@Deprecated
 	protected static final int FB_Time = 14;
-	@Deprecated
 	protected static final int FB_TimeTZ = 15;
-	@Deprecated
 	protected static final int FB_Timestamp = 16;
-	@Deprecated
 	protected static final int FB_TimestampTZ = 17;
-	@Deprecated
 	protected static final int FB_YearMonth = 18;
-	@Deprecated
 	protected static final int FB_DayTime = 19;
-	@Deprecated
 	protected static final int FB_CLOB = 20;
-	@Deprecated
 	protected static final int FB_BLOB = 21;
-	@Deprecated
 	protected static final int FB_TinyInteger = 22;
-	@Deprecated
 	protected static final int FB_LongInteger = 23;
 
 	protected static String notNullConstraintName(EOAttribute attribute) {
@@ -593,10 +540,6 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 			return "\"" + s.substring(0, i) + "\".\"" + s.substring(i + 1, s.length()) + "\"";
 	}
 
-	/**
-	 * @deprecated user {@link FrontBaseTypes#internalTypeForExternal(String)} instead
-	 */
-	@Deprecated
 	protected static int internalTypeForExternal(String externalType) {
 		String upperExternalType = externalType.toUpperCase();
 		if (upperExternalType.equals("BOOLEAN"))
@@ -668,7 +611,7 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 		public String schemaCreationScriptForEntities(NSArray<EOEntity> allEntities, NSDictionary<String, String> options) {
 			StringBuffer result = new StringBuffer();
 			if (options == null) {
-				options = NSDictionary.emptyDictionary();
+				options = NSDictionary.EmptyDictionary;
 			}
 			NSArray<EOSQLExpression> statements = schemaCreationStatementsForEntities(allEntities, options);
 			int i = 0;
@@ -706,31 +649,30 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 				result.addObjectsFromArray(createDatabaseStatementsForConnectionDictionary(connectionDict, null));
 			}
 			if (boolValueForKeyDefault(options, "dropPrimaryKeySupport", true)) {
-				NSArray<NSArray<EOEntity>> entityGroups = primaryKeyEntityGroupsForEntities(entities);
-				result.addObjectsFromArray(dropPrimaryKeySupportStatementsForEntityGroups(entityGroups));
+				NSArray nsarray1 = primaryKeyEntityGroupsForEntities(entities);
+				result.addObjectsFromArray(dropPrimaryKeySupportStatementsForEntityGroups(nsarray1));
 			}
 			if (boolValueForKeyDefault(options, "dropTables", true)) {
-				NSArray<NSArray<EOEntity>> entityGroups = tableEntityGroupsForEntities(entities);
-				result.addObjectsFromArray(dropTableStatementsForEntityGroups(entityGroups));
+				NSArray nsarray2 = tableEntityGroupsForEntities(entities);
+				result.addObjectsFromArray(dropTableStatementsForEntityGroups(nsarray2));
 			}
 			if (boolValueForKeyDefault(options, "createTables", true)) {
-				NSArray<NSArray<EOEntity>> entityGroups = tableEntityGroupsForEntities(entities);
-				result.addObjectsFromArray(createTableStatementsForEntityGroups(entityGroups));
-				result.addObjectsFromArray(createIndexStatementsForEntityGroups(entityGroups));
+				NSArray nsarray3 = tableEntityGroupsForEntities(entities);
+				result.addObjectsFromArray(createTableStatementsForEntityGroups(nsarray3));
+				result.addObjectsFromArray(createIndexStatementsForEntityGroups(nsarray3));
 			}
 			if (boolValueForKeyDefault(options, "createPrimaryKeySupport", true)) {
-				NSArray<NSArray<EOEntity>> entityGroups = primaryKeyEntityGroupsForEntities(entities);
-				result.addObjectsFromArray(primaryKeySupportStatementsForEntityGroups(entityGroups));
+				NSArray nsarray4 = primaryKeyEntityGroupsForEntities(entities);
+				result.addObjectsFromArray(primaryKeySupportStatementsForEntityGroups(nsarray4));
 			}
 			if (boolValueForKeyDefault(options, "primaryKeyConstraints", true)) {
-				NSArray<NSArray<EOEntity>> entityGroups = tableEntityGroupsForEntities(entities);
-				result.addObjectsFromArray(primaryKeyConstraintStatementsForEntityGroups(entityGroups));
+				NSArray nsarray5 = tableEntityGroupsForEntities(entities);
+				result.addObjectsFromArray(primaryKeyConstraintStatementsForEntityGroups(nsarray5));
 			}
 			if (boolValueForKeyDefault(options, "foreignKeyConstraints", false)) {
-				NSArray<NSArray<EOEntity>> entityGroups = tableEntityGroupsForEntities(entities);
-				for (NSArray<EOEntity> entityGroup : entityGroups) {
-					result.addObjectsFromArray(_foreignKeyConstraintStatementsForEntityGroup(entityGroup));
-				}
+				NSArray nsarray6 = tableEntityGroupsForEntities(entities);
+				for (int i = 0; i < nsarray6.count(); i++)
+					result.addObjectsFromArray(_foreignKeyConstraintStatementsForEntityGroup((NSArray) nsarray6.objectAtIndex(i)));
 			}
 			result.addObject(_expressionForString("COMMIT"));
 			return result;
@@ -777,7 +719,7 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 		@Override
 		public NSArray<EOSQLExpression> primaryKeySupportStatementsForEntityGroup(NSArray<EOEntity> entityGroup) {
 			if (entityGroup == null)
-				return NSArray.emptyArray();
+				return NSArray.EmptyArray;
 
 			NSMutableArray<EOSQLExpression> result = new NSMutableArray<EOSQLExpression>();
 
@@ -832,7 +774,7 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 				NSArray<EOAttribute> attributes = relationship.sourceAttributes();
 
 				for (int i = 0; i < attributes.count(); i++) {
-					constraint.append('_');
+					constraint.append("_");
 					if (i != 0)
 						fkSql.append(", ");
 
@@ -844,7 +786,7 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 				}
 
 				fkSql.append(") REFERENCES ");
-				constraint.append('_');
+				constraint.append("_");
 
 				String referencedExternalName = relationship.destinationEntity().externalName();
 				fkSql.append(quoteTableName(referencedExternalName.toUpperCase()));
@@ -855,7 +797,7 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 				attributes = relationship.destinationAttributes();
 
 				for (int i = 0; i < attributes.count(); i++) {
-					constraint.append('_');
+					constraint.append("_");
 					if (i != 0)
 						fkSql.append(", ");
 
@@ -877,7 +819,7 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 
 				return new NSArray<EOSQLExpression>(_expressionForString(sql.toString()));
 			}
-			return NSArray.emptyArray();
+			return NSArray.EmptyArray;
 		}
 
 		/** 
@@ -905,7 +847,7 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 			int j = entityGroup != null ? entityGroup.count() : 0;
 
 			if (j == 0)
-				return NSArray.emptyArray();
+				return NSArray.EmptyArray;
 
 			// 出力バッファーを準備
 			StringBuilder columns = new StringBuilder();
@@ -968,7 +910,7 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 			int j = entityGroup != null ? entityGroup.count() : 0;
 
 			if (j == 0)
-				return NSArray.emptyArray();
+				return NSArray.EmptyArray;
 
 			eosqlexpression = _expressionForEntity(entityGroup.objectAtIndex(0));
 
@@ -1049,9 +991,9 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 		}
 
 		private String statementToCreateDataTypeClause(EOSchemaSynchronization.ColumnTypes columntypes) {
-			switch (FrontBaseTypes.internalTypeForExternal(columntypes.name())) {
-			case FrontBaseTypes.FB_Decimal:
-			case FrontBaseTypes.FB_Numeric:
+			switch (internalTypeForExternal(columntypes.name())) {
+			case FB_Decimal:
+			case FB_Numeric:
 				int j = columntypes.precision();
 				if (j == 0)
 					return columntypes.name();
@@ -1061,11 +1003,11 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 				else
 					return columntypes.name() + "(" + j + "," + k + ")";
 
-			case FrontBaseTypes.FB_Float:
-			case FrontBaseTypes.FB_Bit:
-			case FrontBaseTypes.FB_VBit:
-			case FrontBaseTypes.FB_Character:
-			case FrontBaseTypes.FB_VCharacter:
+			case FB_Float:
+			case FB_Bit:
+			case FB_VBit:
+			case FB_Character:
+			case FB_VCharacter:
 				int l = columntypes.width();
 				if (l == 0)
 					l = columntypes.precision();
@@ -1073,7 +1015,7 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 					return columntypes.name();
 				else
 					return columntypes.name() + "(" + l + ")";
-			case FrontBaseTypes.FB_Timestamp:
+			case FB_Timestamp:
 				int m = columntypes.precision();
 				if (m == 0)
 					return columntypes.name();
@@ -1136,9 +1078,9 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 					StringBuilder pkSql = new StringBuilder(" PRIMARY KEY (");
 
 					for (int j = 0; j < keys.count(); j++) {
-						constraint.append('_');
+						constraint.append("_");
 						if (j != 0)
-							pkSql.append(',');
+							pkSql.append(",");
 
 						pkSql.append("\"");
 						String columnName = entity.attributeNamed(keys.objectAtIndex(j)).columnName();
@@ -1156,7 +1098,7 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 					return new NSArray<EOSQLExpression>(_expressionForString(sql.toString()));
 				}
 			}
-			return NSArray.emptyArray();
+			return NSArray.EmptyArray;
 		}
 	}
 
@@ -1187,6 +1129,8 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 			sql.append(columnTypeStringForAttribute(attribute));
 
 			NSDictionary dictionary = attribute.userInfo();
+			int internalType = internalTypeForExternal(attribute.externalType());
+			boolean isLOB = internalType == FB_BLOB || internalType == FB_CLOB;
 			if (dictionary == null) {
 				_appendNotNullConstraintIfNecessary(attribute, sql);
 			}
@@ -1254,7 +1198,9 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 				}
 				sql.append(" NOT NULL");
 
-				if (isLOBAttribute(attribute))
+				int internalType = internalTypeForExternal(attribute.externalType());
+				boolean isLOB = internalType == FB_BLOB || internalType == FB_CLOB;
+				if (isLOB)
 					sql.append(" DEFERRABLE INITIALLY DEFERRED");
 			}
 		}
@@ -1322,21 +1268,9 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 		EOQualifier qualifier() {
 			return _qualifier;
 		}
-		
-		@Override
-		public String sqlStringForSelector(NSSelector selector, Object value) {
-			String retStr = null;
-			
-			if (_frontbaseContainsOperatorFix == null) {
-				retStr = sqlStringForSelectorTreatingContainsAsLike(selector, value);
-			} else {
-				retStr = super.sqlStringForSelector(selector, value);
-			}
-			
-			return retStr;
-		}
 
-		protected String sqlStringForSelectorTreatingContainsAsLike(NSSelector qualifierOperator, Object value) {
+		@Override
+		public String sqlStringForSelector(NSSelector qualifierOperator, Object value) {
 			if (qualifierOperator.equals(EOQualifier.QualifierOperatorContains))
 				if (value == NSKeyValueCoding.NullValue)
 					return "is";
@@ -1550,7 +1484,7 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 				sb.append(orderByClause);
 			}
 			if (lockClause != null && lockClause.length() > 0) {
-				sb.append(' ');
+				sb.append(" ");
 				sb.append(lockClause);
 			}
 			return sb.toString();
@@ -1662,8 +1596,8 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 		}
 
 		private boolean isLOBAttribute(EOAttribute att) {
-			int internalType = FrontBaseTypes.internalTypeForExternal(att.externalType());
-			return internalType == FrontBaseTypes.FB_BLOB || internalType == FrontBaseTypes.FB_CLOB;
+			int internalType = internalTypeForExternal(att.externalType());
+			return internalType == FB_BLOB || internalType == FB_CLOB;
 		}
 
 		@Override
@@ -1708,12 +1642,7 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 			column = formatSQLString(column, _entity._attributeForPath(attrubute).readFormat());
 			NSSelector nsselector = eokeyvaluequalifier.selector();
 
-			boolean flag = false;
-			if (_frontbaseContainsOperatorFix == null) {
-				flag = nsselector.equals(EOQualifier.QualifierOperatorLike) || nsselector.equals(EOQualifier.QualifierOperatorCaseInsensitiveLike) || nsselector.equals(EOQualifier.QualifierOperatorContains);
-			} else {
-				flag = nsselector.equals(EOQualifier.QualifierOperatorLike) || nsselector.equals(EOQualifier.QualifierOperatorCaseInsensitiveLike);
-			}
+			boolean flag = nsselector.equals(EOQualifier.QualifierOperatorLike) || nsselector.equals(EOQualifier.QualifierOperatorCaseInsensitiveLike) || nsselector.equals(EOQualifier.QualifierOperatorContains);
 
 			if (flag) {
 				qualifier = sqlPatternFromShellPattern(qualifier.toString());
@@ -1732,16 +1661,16 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 				value = sqlStringForValue(qualifier, attrubute);
 
 				sql.append(column);
-				sql.append(' ');
+				sql.append(" ");
 				sql.append(sqlStringForSelector(nsselector, qualifier));
-				sql.append(' ');
+				sql.append(" ");
 				sql.append(value);
 			}
 
 			if (value.indexOf(sqlEscapeChar) != -1 && flag) {
 				sql.append(" ESCAPE '");
 				sql.append(sqlEscapeChar);
-				sql.append('\'');
+				sql.append("'");
 			}
 			return sql.toString();
 		}
@@ -1758,18 +1687,18 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 					throw new EOGeneralAdaptorException("Attribute " + eoattribute.name() + " on entity " + eoattribute.entity().name() + " with prototype named " + eoattribute.prototypeName() + " has no external type defined");
 				}
 
-				switch (FrontBaseTypes.internalTypeForExternal(eoattribute.externalType())) {
-				case FrontBaseTypes.FB_Character:
-				case FrontBaseTypes.FB_VCharacter: {
+				switch (internalTypeForExternal(eoattribute.externalType())) {
+				case FB_Character:
+				case FB_VCharacter: {
 					return escapedString(obj);
 				}
-				case FrontBaseTypes.FB_DayTime: {
+				case FB_DayTime: {
 					return escapedString(obj);
 				}
-				case FrontBaseTypes.FB_BLOB:
-				case FrontBaseTypes.FB_CLOB: {
+				case FB_BLOB:
+				case FB_CLOB: {
 					if (!(obj instanceof String) && eoattribute.valueFactoryMethod() != null) {
-						Class<?> valueClass = _NSUtilities.classWithName(eoattribute.className());
+						Class valueClass = _NSUtilities.classWithName(eoattribute.className());
 						if (valueClass.isAssignableFrom(obj.getClass())) {
 							obj = eoattribute.adaptorValueByConvertingAttributeValue(obj);
 						}
@@ -1783,8 +1712,8 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 					_lobList.addObject(obj);
 					return "NULL";
 				}
-				case FrontBaseTypes.FB_VBit:
-				case FrontBaseTypes.FB_Bit: {
+				case FB_VBit:
+				case FB_Bit: {
 					if (obj instanceof NSData) {
 						return formatBit((NSData) obj);
 					}
@@ -1792,48 +1721,51 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 						return "ERROR: Can not convert value from " + obj + " to Bit or Byte data type";
 					}
 				}
-				case FrontBaseTypes.FB_Time: {
+				case FB_Time: {
 					StringBuffer time = new StringBuffer("TIME '");
 					Date d = (Date)eoattribute.adaptorValueByConvertingAttributeValue(obj);
-					TIME_FORMATTER.get().format(d, time, new FieldPosition(0));
-					time.append('\'');
+					SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.SSS");
+					format.format(d, time, new FieldPosition(0));
+					time.append("'");
 					return time.toString();
 				}
 
-				case FrontBaseTypes.FB_TimeTZ: {
+				case FB_TimeTZ: {
 					StringBuffer time = new StringBuffer("TIME '");
 					Date d = (Date)eoattribute.adaptorValueByConvertingAttributeValue(obj);
-					SimpleDateFormat formatter = TIME_FORMATTER.get();
-					formatter.format(d, time, new FieldPosition(0));
-					time.append(getTimeZone(formatter.getTimeZone()));
-					time.append('\'');
+					SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss.SSS");
+					format.format(d, time, new FieldPosition(0));
+					time.append(getTimeZone(NSTimeZone.defaultTimeZone()));
+					time.append("'");
 					return time.toString();
 				}
 
-				case FrontBaseTypes.FB_Timestamp: {
+				case FB_Timestamp: {
 					StringBuffer time = new StringBuffer("TIMESTAMP '");
 					Date d = (Date)eoattribute.adaptorValueByConvertingAttributeValue(obj);
-					TIMESTAMP_FORMATTER.get().format(d, time, new FieldPosition(0));
-					time.append('\'');
+					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+					format.format(d, time, new FieldPosition(0));
+					time.append("'");
 					return time.toString();
 				}
-				case FrontBaseTypes.FB_TimestampTZ: {
+				case FB_TimestampTZ: {
 					StringBuffer time = new StringBuffer("TIMESTAMP '");
 					Date d = (Date)eoattribute.adaptorValueByConvertingAttributeValue(obj);
-					SimpleDateFormat formatter = TIMESTAMP_FORMATTER.get();
-					formatter.format(d, time, new FieldPosition(0));
-					time.append(getTimeZone(formatter.getTimeZone()));
-					time.append('\'');
+					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+					format.format(d, time, new FieldPosition(0));
+					time.append(getTimeZone(NSTimeZone.defaultTimeZone()));
+					time.append("'");
 					return time.toString();
 				}
-				case FrontBaseTypes.FB_Date: {
+				case FB_Date: {
 					StringBuffer time = new StringBuffer("DATE '");
 					Date d = (Date)eoattribute.adaptorValueByConvertingAttributeValue(obj);
-					DATE_FORMATTER.get().format(d, time, new FieldPosition(0));
-					time.append('\'');
+					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+					format.format(d, time, new FieldPosition(0));
+					time.append("'");
 					return time.toString();
 				}
-				case FrontBaseTypes.FB_Boolean: {
+				case FB_Boolean: {
 					if (obj instanceof Boolean) {
 						return obj.toString();
 					}
@@ -1859,15 +1791,15 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 						return "TRUE";
 					}
 				}
-				case FrontBaseTypes.FB_SmallInteger:
-				case FrontBaseTypes.FB_Float:
-				case FrontBaseTypes.FB_Real:
-				case FrontBaseTypes.FB_Double:
-				case FrontBaseTypes.FB_LongInteger:
-				case FrontBaseTypes.FB_TinyInteger:
-				case FrontBaseTypes.FB_Numeric:
-				case FrontBaseTypes.FB_Integer:
-				case FrontBaseTypes.FB_Decimal: {
+				case FB_SmallInteger:
+				case FB_Float:
+				case FB_Real:
+				case FB_Double:
+				case FB_LongInteger:
+				case FB_TinyInteger:
+				case FB_Numeric:
+				case FB_Integer:
+				case FB_Decimal: {
 					if (obj instanceof BigDecimal) {
 						return ((BigDecimal) obj).setScale(eoattribute.scale(), BigDecimal.ROUND_HALF_UP).toString();
 					}
@@ -1976,7 +1908,7 @@ public class _FrontBasePlugIn extends JDBCPlugIn {
 				result.append(heximals[b % 16]);
 			}
 
-			result.append('\'');
+			result.append("'");
 			return result.toString();
 		}
 

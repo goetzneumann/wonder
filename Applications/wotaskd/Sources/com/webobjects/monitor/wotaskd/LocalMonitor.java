@@ -541,8 +541,9 @@ public class LocalMonitor extends ProtoLocalMonitor  {
             if (ne.originalException() instanceof IOException) {
                 anInstance.failedToConnect();
                 throw new MonitorException(_hostName + ": Timeout while connecting to " + anInstance.displayName());
+            } else {
+                throw ne;
             }
-            throw ne;
         } catch (MonitorException me) {
             anInstance.failedToConnect();
             throw me;

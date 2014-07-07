@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -35,7 +36,8 @@ import er.extensions.foundation.ERXMutableDictionary;
 public class ValueFactory {
 	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(ValueFactory.class);
-    
+	private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
+	
 	public static Duration duration(String value) {
 		try {
 			Duration d = DatatypeFactory.newInstance().newDuration(value);
@@ -46,25 +48,29 @@ public class ValueFactory {
 	}
 	
 	public static LocalDate jodaLocalDate(Date value) {
-		LocalDate ld = new LocalDate(value.getTime());
+		GregorianCalendar gc = new GregorianCalendar(GMT);
+		gc.setTime(value);
+		LocalDate ld = new LocalDate(gc.getTimeInMillis());
 		return ld;
 	}
 	
 	public static LocalDateTime jodaLocalDateTime(Date value) {
-		LocalDateTime ldt = new LocalDateTime(value.getTime());
+		GregorianCalendar gc = new GregorianCalendar(GMT);
+		gc.setTime(value);
+		LocalDateTime ldt = new LocalDateTime(gc.getTimeInMillis());
 		return ldt;
 	}
 	
 	public static LocalTime jodaLocalTime(Date value) {
-		LocalTime time = new LocalTime(value.getTime());
+		GregorianCalendar gc = new GregorianCalendar(GMT);
+		gc.setTime(value);
+		LocalTime time = new LocalTime(gc.getTimeInMillis());
 		return time;
 	}
 
 	public static DateTime jodaDateTime(Date value) {
-		long dateInMillis = value.getTime();
-		int offset = TimeZone.getDefault().getOffset(dateInMillis);
-		DateTime dateTime = new DateTime(dateInMillis + offset);
-		return dateTime;
+		DateTime dt = new DateTime(value.getTime());
+		return dt;
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -95,7 +101,7 @@ public class ValueFactory {
 			ois = new ObjectInputStream(bais);
 			Serializable obj = (Serializable)ois.readObject();
 			if(obj instanceof Collection) {
-				obj = (Serializable)Collections.unmodifiableCollection((Collection<?>)obj);
+				obj = (Serializable)Collections.unmodifiableCollection((Collection)obj);
 			}
 			return obj;
 		} catch(IOException e) {

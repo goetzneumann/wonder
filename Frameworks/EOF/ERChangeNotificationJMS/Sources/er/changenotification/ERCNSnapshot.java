@@ -171,28 +171,28 @@ public class ERCNSnapshot implements Serializable {
     @Override
     public String toString() {
         if (_toString == null) {
-            StringBuilder sbuf = new StringBuilder();
-            sbuf.append('<').append(getClass().getName()).append('\n');
+            StringBuffer sbuf = new StringBuffer();
+            sbuf.append("<").append(getClass().getName()).append("\n");
             
-            sbuf.append(" sender: ").append(senderHost()).append(':')
-                .append(senderPort()).append('/').append(senderAppName()).append('\n');
+            sbuf.append(" sender: ").append(senderHost()).append(":")
+                .append(senderPort()).append("/").append(senderAppName()).append("\n");
             
             sbuf.append(" insertion: ").append(_summaryForChangeType(_shapshotsForInsertionGroupedByEntity));
             sbuf.append(" update: ").append(_summaryForChangeType(_shapshotsForUpdateGroupedByEntity));
             sbuf.append(" deletion: ").append(_summaryForChangeType(_globalIDsForDeletionGroupedByEntity));
             
-            sbuf.append('>');
+            sbuf.append(">");
             _toString = sbuf.toString();
         }
         return _toString;
     }
     
     private String _summaryForChangeType(NSDictionary objectsGroupedByEntity) {
-        StringBuilder sbuf = new StringBuilder();
+        StringBuffer sbuf = new StringBuffer();
         if (objectsGroupedByEntity.allKeys().count() == 0) {
             sbuf.append("none \n");
         } else {
-            sbuf.append('\n');
+            sbuf.append("\n");
             Enumeration entityNames = objectsGroupedByEntity.keyEnumerator();
             while (entityNames.hasMoreElements()) {
                 String entityName = (String)entityNames.nextElement();

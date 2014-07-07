@@ -686,26 +686,22 @@ public class ERXEOControlUtilities {
     
     /**
      * Returns an {@link com.webobjects.foundation.NSArray NSArray} containing the primary keys from the resulting rows starting
-     * at <i>start</i> and stopping at <i>end</i> using a custom SQL, derived from the SQL
+     * at start and stopping at end using a custom SQL, derived from the SQL
      * which the {@link com.webobjects.eocontrol.EOFetchSpecification EOFetchSpecification} would use normally {@link com.webobjects.eocontrol.EOFetchSpecification#setHints(NSDictionary) setHints()}
      *
      * @param ec editing context to fetch objects into
      * @param spec fetch specification for the fetch
-     * @param start the starting row number
-     * @param end the last row number
+     * @param start
+     * @param end
      *
      * @return primary keys in the given range
      */
-    public static NSArray<NSDictionary<String, Object>> primaryKeyValuesInRange(EOEditingContext ec, EOFetchSpecification spec, int start, int end) {
+    public static NSArray primaryKeyValuesInRange(EOEditingContext ec, EOFetchSpecification spec, int start, int end) {
         EOEntity entity = ERXEOAccessUtilities.entityNamed(ec, spec.entityName());
         NSArray<String> pkNames = entity.primaryKeyAttributeNames();
-        EOFetchSpecification clonedFetchSpec = (EOFetchSpecification)spec.clone();
-        clonedFetchSpec.setFetchesRawRows(true);
-        clonedFetchSpec.setRawRowKeyPaths(pkNames);
-        if (clonedFetchSpec instanceof ERXFetchSpecification) {
-            // remove any range setting as we will explicitly set start and end limit
-            ((ERXFetchSpecification)clonedFetchSpec).setFetchRange(null);
-        }
+        spec.setFetchesRawRows(true);
+        spec.setRawRowKeyPaths(pkNames);
+    	EOFetchSpecification clonedFetchSpec = (EOFetchSpecification)spec.clone();
         EOSQLExpression sql = ERXEOAccessUtilities.sqlExpressionForFetchSpecification(ec, clonedFetchSpec, start, end);
         NSDictionary<String, EOSQLExpression> hints = new NSDictionary<String, EOSQLExpression>(sql, EODatabaseContext.CustomQueryExpressionHintKey);
         clonedFetchSpec.setHints(hints);
@@ -2052,27 +2048,21 @@ public class ERXEOControlUtilities {
     }
 
     /**
-     * Trims all values from string attributes from the given EO unless the EO itself
-     * or the string attribute is flagged as read-only.
-     * 
-     * @param object the EO whose string attributes should be trimmed
+     * Trims all values from string attributes from the given EO.
+     * @param object
      */
     public static void trimSpaces(EOEnterpriseObject object) {
-        EOEntity entity = EOUtilities.entityForObject(object.editingContext(), object);
-        if (entity.isReadOnly()) {
-            return;
-        }
         for (Enumeration e=ERXEOControlUtilities.stringAttributeListForEntityNamed(object.editingContext(), object.entityName()).objectEnumerator(); e.hasMoreElements();) {
             String key=(String)e.nextElement();
             String value=(String)object.storedValueForKey(key);
-            if (value != null && !entity.attributeNamed(key).isReadOnly()) {
+            if (value!=null) {
                 String trimmedValue=value.trim();
                 if (trimmedValue.length()!=value.length())
                     object.takeStoredValueForKey(trimmedValue,key);
             }
         }
     }
-
+    
     /**
      * Convenience to get the destination entity name from a key path of an object.
      * Returns null if no destination found.

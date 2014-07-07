@@ -49,7 +49,6 @@ import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -1511,7 +1510,7 @@ public class FilesClient
     		StringBuilder sb = new StringBuilder();
     		for (int j=0; j <= i; ++j) {
     			if (sb.length() != 0) 
-    				sb.append('/');
+    				sb.append("/");
     			sb.append(parts[j]);
     		}
     		createPath(container, sb.toString());
@@ -2127,8 +2126,7 @@ public class FilesClient
     				if (useETag) {
     					method.setHeader(FilesConstants.E_TAG, md5Sum (obj));
     				}
-    				ContentType ct = ContentType.create(contentType);
-    				method.setEntity(new RequestEntityWrapper(new FileEntity(obj, ct), callback));
+    				method.setEntity( new RequestEntityWrapper(new FileEntity (obj, contentType), callback));
     				for(String key : metadata.keySet()) {
     					method.setHeader(FilesConstants.X_OBJECT_META + key, sanitizeForURI(metadata.get(key)));
     				}
@@ -2143,7 +2141,7 @@ public class FilesClient
     	    				if (useETag) {
     	    					method.setHeader(FilesConstants.E_TAG, md5Sum (obj));
     	    				}
-    	    				method.setEntity(new RequestEntityWrapper(new FileEntity(obj, ct), callback));
+    	    				method.setEntity( new RequestEntityWrapper(new FileEntity (obj, contentType), callback));
     	    				for(String key : metadata.keySet()) {
     	    					method.setHeader(FilesConstants.X_OBJECT_META + key, sanitizeForURI(metadata.get(key)));
     	    				}

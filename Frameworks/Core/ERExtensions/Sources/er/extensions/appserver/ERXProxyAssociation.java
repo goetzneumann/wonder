@@ -45,7 +45,7 @@ public class ERXProxyAssociation extends WOAssociation implements Cloneable {
 	public Object valueInComponent(WOComponent wocomponent) {
 		Object value = _proxiedAssociation.valueInComponent(wocomponent);
 		if (value instanceof String || (value == null && _treatNullAsEmptyString)) {
-			StringBuilder newValue = new StringBuilder();
+			StringBuffer newValue = new StringBuffer();
 			if (_prefix != null) {
 				newValue.append(_prefix);
 			}

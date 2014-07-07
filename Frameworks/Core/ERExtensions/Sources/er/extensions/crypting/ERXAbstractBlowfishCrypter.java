@@ -193,7 +193,7 @@ public abstract class ERXAbstractBlowfishCrypter implements ERXCrypterInterface 
 			return null;
 		}
 		byte clearTextBytes[] = ERXStringUtilities.toUTF8Bytes(clearText);
-		StringBuilder result = new StringBuilder();
+		StringBuffer result = new StringBuffer();
 		int pos = 0, length = clearTextBytes.length;
 		byte[] bytesToEncrypt = new byte[_blockSize];
 		byte[] encryptedBytes = null;

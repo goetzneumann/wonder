@@ -113,18 +113,14 @@ public class ERXWOUrlField extends ERXWOInput {
 
   @Override
   public String toString() {
-    StringBuilder stringbuffer = new StringBuilder();
-    stringbuffer.append('<');
+    StringBuffer stringbuffer = new StringBuffer();
+    stringbuffer.append("<");
     stringbuffer.append(getClass().getName());
-    stringbuffer.append(" placeholder=");
-    stringbuffer.append(_placeholder);
-    stringbuffer.append(" pattern=");
-    stringbuffer.append(_pattern);
-    stringbuffer.append(" size=");
-    stringbuffer.append(_size);
-    stringbuffer.append(" maxlength=");
-    stringbuffer.append(_maxlength);
-    stringbuffer.append('>');
+    stringbuffer.append(" placeholder=" + _placeholder);
+    stringbuffer.append(" pattern=" + _pattern);
+    stringbuffer.append(" size=" + _size);
+    stringbuffer.append(" maxlength=" + _maxlength);
+    stringbuffer.append(">");
     return stringbuffer.toString();
   }
 }

@@ -3,4 +3,6 @@ bin
 *.xcodeproj
 *.pbxproj
 ant.*
-dist
+
+
+/dist

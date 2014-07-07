@@ -920,6 +920,8 @@ public abstract class ERXApplication extends ERXAjaxApplication implements ERXGr
 	 * @author ak
 	 */
 	public static class JarChecker {
+		private static final Logger log = Logger.getLogger(JarChecker.class);
+
 		private static class Entry {
 			long _size;
 			String _jar;
@@ -939,10 +941,7 @@ public abstract class ERXApplication extends ERXAjaxApplication implements ERXGr
 
 			@Override
 			public boolean equals(Object other) {
-				if (other != null && other instanceof Entry) {
-					return ((Entry) other).size() == size();
-				}
-				return false;
+				return ((Entry) other).size() == size();
 			}
 
 			@Override
@@ -996,21 +995,21 @@ public abstract class ERXApplication extends ERXAjaxApplication implements ERXGr
 		}
 
 		private void reportErrors() {
-			StringBuilder sb = new StringBuilder();
+			StringBuffer sb = new StringBuffer();
 			String message = null;
 			NSArray<String> keys = ERXArrayUtilities.sortedArraySortedWithKey(packages.allKeys(), "toString");
 			for (Enumeration<String> enumerator = keys.objectEnumerator(); enumerator.hasMoreElements();) {
 				String packageName = enumerator.nextElement();
 				NSMutableArray<String> bundles = packages.objectForKey(packageName);
 				if (bundles.count() > 1) {
-					sb.append('\t').append(packageName).append("->").append(bundles).append('\n');
+					sb.append("\t").append(packageName).append("->").append(bundles).append("\n");
 				}
 			}
 			message = sb.toString();
 			if (message.length() > 0) {
 				startupLog.debug("The following packages appear multiple times:\n" + message);
 			}
-			sb = new StringBuilder();
+			sb = new StringBuffer();
 			NSMutableSet<String> classPackages = new NSMutableSet<String>();
 			keys = ERXArrayUtilities.sortedArraySortedWithKey(classes.allKeys(), "toString");
 			for (Enumeration<String> enumerator = keys.objectEnumerator(); enumerator.hasMoreElements();) {
@@ -1018,7 +1017,7 @@ public abstract class ERXApplication extends ERXAjaxApplication implements ERXGr
 				String packageName = className.replaceAll("/[^/]+?$", "");
 				NSMutableSet<Entry> bundles = classes.objectForKey(className);
 				if (bundles.count() > 1 && !classPackages.containsObject(packageName)) {
-					sb.append('\t').append(packageName).append("->").append(bundles).append('\n');
+					sb.append("\t").append(packageName).append("->").append(bundles).append("\n");
 					classPackages.addObject(packageName);
 				}
 			}
@@ -2722,7 +2721,7 @@ public abstract class ERXApplication extends ERXAjaxApplication implements ERXGr
 	
 	protected void _debugValueForDeclarationNamed(WOComponent component, String verb, String aDeclarationName, String aDeclarationType, String aBindingName, String anAssociationDescription, Object aValue) {
 		if (aValue instanceof String) {
-			StringBuilder stringbuffer = new StringBuilder(((String) aValue).length() + 2);
+			StringBuffer stringbuffer = new StringBuffer(((String) aValue).length() + 2);
 			stringbuffer.append('"');
 			stringbuffer.append(aValue);
 			stringbuffer.append('"');
@@ -2732,7 +2731,7 @@ public abstract class ERXApplication extends ERXAjaxApplication implements ERXGr
 			aDeclarationName = "[inline]";
 		}
 
-		StringBuilder sb = new StringBuilder();
+		StringBuffer sb = new StringBuffer();
 
 		//NSArray<WOComponent> componentPath = ERXWOContext._componentPath(ERXWOContext.currentContext());
 		//componentPath.lastObject()
@@ -2744,13 +2743,13 @@ public abstract class ERXApplication extends ERXAjaxApplication implements ERXGr
 
 		if (!aDeclarationName.startsWith("_")) {
 			sb.append(aDeclarationName);
-			sb.append(':');
+			sb.append(":");
 		}
 		sb.append(aDeclarationType);
 
 		sb.append(" { ");
 		sb.append(aBindingName);
-		sb.append('=');
+		sb.append("=");
 
 		String valueStr = aValue != null ? aValue.toString() : "null";
 		if (anAssociationDescription.startsWith("class ")) {

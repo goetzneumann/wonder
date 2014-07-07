@@ -73,14 +73,14 @@ public class PayPalAction extends WODirectAction {
         	ppEchoConnection = new WOHTTPConnection(sandboxSite, 80); // our echo to PayPal
         } 
         // assemble User-Agent header
-        StringBuilder ua = new StringBuilder();
+        StringBuffer ua = new StringBuffer();
         ua.append("WebObjects/ " + ERXProperties.webObjectsVersion() + " (");
         ua.append(System.getProperty("os.arch"));
         ua.append("; ");
         ua.append(System.getProperty("os.name"));
-        ua.append(' ');
+        ua.append(" ");
         ua.append(System.getProperty("os.version"));
-        ua.append(')');
+        ua.append(")");
 
         NSMutableDictionary headers = new NSMutableDictionary();
         headers.setObjectForKey("en", "Accept-Language");

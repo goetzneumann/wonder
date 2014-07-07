@@ -120,7 +120,7 @@ public class ERXModuloQualifier extends EOKeyValueQualifier implements Cloneable
         @Override
         public String sqlStringForSQLExpression(EOQualifier eoqualifier, EOSQLExpression e) {
             ERXModuloQualifier modQualifier = (ERXModuloQualifier)eoqualifier;
-            StringBuilder sb = new StringBuilder();
+            StringBuffer sb=new StringBuffer();
             sb.append("mod(");
             sb.append(e.sqlStringForAttributeNamed(modQualifier.key()));
             sb.append(", ");

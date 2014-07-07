@@ -85,7 +85,10 @@ public class ERXNavigationMenu extends ERXStatelessComponent {
                         o = (o == null ? NSArray.EmptyArray : o);
                         NSArray additionalNavigationState = (o instanceof NSArray ? (NSArray)o : NSArray.componentsSeparatedByString(o.toString(), "."));
                         if (additionalNavigationState != null && additionalNavigationState.count() > 0) {
-                            navigationState().setAdditionalState(additionalNavigationState);
+                            if (additionalNavigationState != null && additionalNavigationState.count() > 0)
+                                navigationState().setAdditionalState(additionalNavigationState);
+                            else
+                                navigationState().setAdditionalState(null);
                         } else if (ERXValueUtilities.booleanValue(navigationContext().valueForKey("shouldResetNavigationState"))) {
                             navigationState().setState(NSArray.EmptyArray);
                         }

@@ -132,7 +132,7 @@ public class ERDSavedQueriesComponent extends WOComponent {
 		}
 
 		protected static String logDictionary(String title, NSDictionary dictionary, String indentStr) {
-			StringBuilder buf = new StringBuilder();
+			StringBuffer buf = new StringBuffer();
 
 			buf.append("\r\n" + indentStr + "==========" + ((title != null) ? title : "") + "==================\r\n");
 			buf.append(indentStr + "Dictionary dump, count=" + dictionary.count() + "\r\n");

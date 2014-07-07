@@ -20,6 +20,7 @@ import com.webobjects.foundation.NSProperties;
 import com.webobjects.foundation.NSSelector;
 
 import er.extensions.ERXExtensions;
+import er.extensions.appserver.ERXApplication;
 import er.extensions.eof.ERXConstant;
 import er.extensions.logging.ERXLogger;
 
@@ -246,7 +247,7 @@ public class ERXConfigurationManager {
             }
             else {
                 if (WOApplication.application() != null) {
-                    StringBuilder appSpecificTouchFile = new StringBuilder();
+                    StringBuffer appSpecificTouchFile = new StringBuffer();
                     
                     appSpecificTouchFile.append(propertiesTouchFile.substring(0, appNamePlaceHolderIndex + 1));
                     appSpecificTouchFile.append(WOApplication.application().name());
@@ -255,7 +256,7 @@ public class ERXConfigurationManager {
                     registerForFileNotification(appSpecificTouchFile.toString(), "updateAllSystemProperties");
                 }
                 
-                StringBuilder globalTouchFile = new StringBuilder();
+                StringBuffer globalTouchFile = new StringBuffer();
                 
                 globalTouchFile.append(propertiesTouchFile.substring(0, appNamePlaceHolderIndex + 1));
                 globalTouchFile.append(propertiesTouchFile.substring(appNamePlaceHolderIndex + appNamePlaceHolder.length()));

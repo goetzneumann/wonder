@@ -30,6 +30,7 @@ import com.webobjects.foundation.NSMutableArray;
 import com.webobjects.foundation.NSMutableDictionary;
 
 import er.selenium.SeleniumTest;
+import er.selenium.SeleniumTest.Command;
 import er.selenium.SeleniumTest.Element;
 
 public class SeleniumRepeatExpanderTestFilter extends SeleniumTestFilterHelper implements SeleniumTestFilter {

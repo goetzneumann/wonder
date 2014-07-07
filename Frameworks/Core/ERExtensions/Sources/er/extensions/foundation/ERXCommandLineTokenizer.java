@@ -82,7 +82,7 @@ public class ERXCommandLineTokenizer implements Enumeration {
     boolean escapeNext = false;
     boolean wasQuoted = _wasQuoted;
 
-    StringBuilder token = new StringBuilder();
+    StringBuffer token = new StringBuffer();
     char c = _iterator.current();
     boolean done = false;
     while (!done && c != CharacterIterator.DONE) {

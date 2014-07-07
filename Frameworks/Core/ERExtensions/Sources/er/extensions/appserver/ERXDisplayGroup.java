@@ -1,7 +1,6 @@
 package er.extensions.appserver;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.webobjects.appserver.WODisplayGroup;
@@ -94,19 +93,6 @@ public class ERXDisplayGroup<T> extends WODisplayGroup {
 		} else {
 			_extraQualifiers.removeObjectForKey(key);
 		}
-	}
-	
-	/**
-	 * Will return the qualifer set by "setQualifierForKey()" if it exists. Null returns otherwise.
-	 * @param key
-	 * @return
-	 */
-	public EOQualifier qualifierForKey(String key) {
-		EOQualifier qualifier = null;
-		if (StringUtils.isNotBlank(key)) {
-			qualifier = _extraQualifiers.objectForKey(key);
-		}
-		return qualifier;
 	}
 
 	/**

@@ -60,7 +60,7 @@ public class PayPalSingleItemHyperlink extends PayPalSingleItemLinkBase {
         DecimalFormat currencyFormatter = new DecimalFormat("##0.00", new DecimalFormatSymbols(Locale.US));
         DecimalFormat taxFormatter = new DecimalFormat("##0.000", new DecimalFormatSymbols(Locale.US));
 
-        StringBuilder sb = new StringBuilder();
+        StringBuffer sb = new StringBuffer();
         sb.append("&business=" + urlEncode(payPalBusinessName) ); // required!!!
         if (userDefinableQuantity!=null) {
             sb.append("&undefined_quantity=" + (userDefinableQuantity.booleanValue() ? "1" : "0") );  

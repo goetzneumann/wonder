@@ -183,37 +183,37 @@ public class ERCMailMessage extends _ERCMailMessage {
      * @return very verbose description of the mail message.
      */
     public String longDescription() {
-        StringBuilder sb = new StringBuilder();
+        StringBuffer sb=new StringBuffer();
         sb.append("To: ");
         sb.append(toAddresses());
-        sb.append('\n');
+        sb.append("\n");
         sb.append("cc: ");
         sb.append(ccAddresses());
-        sb.append('\n');
+        sb.append("\n");
         sb.append("Created: ");
         sb.append(created());
-        sb.append('\n');
+        sb.append("\n");
         sb.append("Title: ");
         sb.append(title());
-        sb.append('\n');
+        sb.append("\n");
         sb.append("Text: ");
         sb.append(text());
-        sb.append('\n');
+        sb.append("\n");
         return sb.toString();
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        StringBuffer sb = new StringBuffer();
         sb.append("To: ");
         sb.append(toAddresses());
-        sb.append('\n');
+        sb.append("\n");
         sb.append("cc: ");
         sb.append(ccAddresses());
-        sb.append('\n');
+        sb.append("\n");
         sb.append("Created: ");
         sb.append(created());
-        sb.append('\n');
+        sb.append("\n");
         sb.append("Title: ");
         sb.append(title());
         return sb.toString();

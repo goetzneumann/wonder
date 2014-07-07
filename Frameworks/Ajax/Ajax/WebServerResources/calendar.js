@@ -338,18 +338,8 @@ function calendar_update() {
   get_element('calendar_header').innerHTML = calendar.month_names[m].substr(0,3).toUpperCase()+ ' ' + y;
   get_element('calendar_prev_month').onclick = calendar_prev_month;
   get_element('calendar_next_month').onclick = calendar_next_month;
-  if (calendar.showYearControls) {
-  	get_element('calendar_prev_year').childNodes[0].style.visibility = 'visible';
-  	get_element('calendar_prev_year').onclick = calendar_prev_year;
-  	get_element('calendar_next_year').childNodes[0].style.visibility = 'visible';
-  	get_element('calendar_next_year').onclick = calendar_next_year;
-  }
-  else {
-  	get_element('calendar_prev_year').childNodes[0].style.visibility = 'hidden';
-  	get_element('calendar_prev_year').onclick = undefined;
-  	get_element('calendar_next_year').childNodes[0].style.visibility = 'hidden';
-  	get_element('calendar_next_year').onclick = undefined;
-  }
+  get_element('calendar_prev_year').onclick = calendar_prev_year;
+  get_element('calendar_next_year').onclick = calendar_next_year;
 
 // Iterate through the 42 calendar date boxes.
   var hide_last_row = false;
@@ -418,11 +408,7 @@ function calendar_open(input_element, options) {
   
   // FL Added to support diffrent start days. Defaults to 0 (Sunday).
   if (options.start_day) {
-  	calendar.start_day = options.start_day;
-  }
-
-  if (options.showYearControls == false) {
-  	calendar.showYearControls = false;
+  	calendar.start_day = options.start_day
   }
   // CH: Done add init of new options
   
@@ -553,7 +539,6 @@ calendar = {                        // Calendar properties.
   onDateSelect: undefined,          // CH: add function called when user selects a date
   fireEvent: true,					// CH: add should event listener for text field be fired upon date select?
   start_day: 0,						// FL: Start day, defaults to 0 Sunday.
-  showYearControls: true,			// SP: Display the year prev and next arrows.
   input_date: undefined,            // Date value of input element, set by calendar_show().
   month_date: undefined,            // First day of calendar month.
   format: undefined,                // The date display format, set by calendar_show().

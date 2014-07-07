@@ -62,14 +62,14 @@ public class GCQRCode extends GCAbstractChart {
     }
 
     if (_ecLevel != null || _margin != null) {
-      StringBuilder chld = new StringBuilder();
+      StringBuffer chld = new StringBuffer();
       if (_ecLevel != null) {
         String ecLevel = (String) _ecLevel.valueInComponent(component);
         chld.append(ecLevel);
       }
       if (_margin != null) {
         if (chld.length() > 0) {
-          chld.append('|');
+          chld.append("|");
         }
         String margin = (String) _margin.valueInComponent(component);
         chld.append(margin);

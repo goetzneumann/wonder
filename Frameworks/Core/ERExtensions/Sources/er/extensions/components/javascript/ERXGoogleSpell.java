@@ -90,7 +90,7 @@ public class ERXGoogleSpell {
 	public static String correct(String text, String lang, String hl, boolean escapeXml) throws CorrectionException {
 		Correction[] corrections = ERXGoogleSpell.suggestions(text, lang, hl, escapeXml);
 		int lastOffset = 0;
-		StringBuilder buffer = new StringBuilder();
+		StringBuffer buffer = new StringBuffer();
 		for (int correctionNum = 0; correctionNum < corrections.length; correctionNum++) {
 			Correction correction = corrections[correctionNum];
 			String[] suggestions = correction.suggestions();
@@ -167,7 +167,7 @@ public class ERXGoogleSpell {
 	 */
 	public static Correction[] suggestions(String text, String lang, String hl, boolean escapeXml) throws CorrectionException {
 		try {
-			StringBuilder request = new StringBuilder();
+			StringBuffer request = new StringBuffer();
 			request.append("<spellrequest textalreadyclipped=\"0\" ignoredups=\"1\" ignoredigits=\"1\" ignoreallcaps=\"0\"><text>");
 			if (escapeXml) {
 				request.append(ERXStringUtilities.escapeNonXMLChars(text));

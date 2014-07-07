@@ -40,7 +40,7 @@ public abstract class GCMappedEncoding extends GCAbstractEncoding {
 
   @Override
   protected String _encode(Number maxValue, List<Number> dataSet) {
-    StringBuilder sb = new StringBuilder();
+    StringBuffer sb = new StringBuffer();
     if (dataSet != null) {
       int numberOfEncodingValues = numberOfEncodingValues();
       for (Number number : dataSet) {

@@ -318,21 +318,18 @@ public class ERXMigrator {
 	}
 
 	protected boolean canMigrateModel(EOModel model) {
+		boolean canMigrateModel = false;
 		String adaptorName = model.adaptorName();
 		if ("Memory".equals(adaptorName)) {
-			return true;
+			canMigrateModel = true;
 		}
-		if ("JDBC".equals(adaptorName)) {
+		else if ("JDBC".equals(adaptorName)) {
 			String url = (String)model.connectionDictionary().objectForKey(JDBCAdaptor.URLKey);
-			if ((url != null && url.toLowerCase().startsWith("jdbc:"))) {
-				return true;
-			}
-			String dataSourceJndiName = (String) model.connectionDictionary().objectForKey(JDBCAdaptor.DataSourceJndiNameKey);
-			if(dataSourceJndiName != null) {
-				return true;
+			if (url != null && url.toLowerCase().startsWith("jdbc:")) {
+				canMigrateModel = true;
 			}
 		}
-		return false;
+		return canMigrateModel;
 	}
 	
 	protected void _buildDependenciesForModel(EOModel model, int migrateToVersion, Map<String, Integer> versions, Map<IERXMigration, ERXModelVersion> migrations) throws InstantiationException, IllegalAccessException {
